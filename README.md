@@ -1,7 +1,7 @@
 # Braintree Test
 > Braintree nodejs setup
 
-## Installation
+## Installation
 ```sh
     # Clone this repo
     git clone https://github.com/Rawnly/braintree-test
