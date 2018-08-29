@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        meta(http-equiv="X-UA-Compatible", content="ie=edge")
+        
+        title Braintree Test | Home
+        
+        link(rel="stylesheet", href="/css/master.css")
+    body
+        .notification-wrapper
+            if messages && messages.length > 0
+                .notification.show
+                    for msg in messages
+                        div.notification-message
+                            p=msg.msg
+                            span.dismiss &times;
+
+        .container.full-page.center
+            form#payment-form(action="/checkout", method="POST")
+                section
+                    .form-input
+                        label(for="amount") Amount:
+                        input#amount(name="amount" type="tel" min="1" value="10" placeholder="Choose how much do you want to pay")
+                    
+                    .drop-wrapper
+                        #bt-container
+                input#nonce(type="hidden" name="payment_method_nonce")
+                button.button(type="submit")
+                    span Let's Go!
+            
+
+        script(src="https://js.braintreegateway.com/web/dropin/1.12.0/js/dropin.min.js")
+        script.
+            const token = '#{token}'
+            const form = document.querySelector("#payment-form")
+
+            if (document.querySelector('.dismiss') != null) {
+                console.log('Now dismissable')
+                document.querySelector('.dismiss').addEventListener('click', function() {
+                    document.querySelector('.notification.show').classList.toggle('show')
+                })
+            }
+
+            braintree.dropin.create({
+                authorization: token,
+                container: '#bt-container',
+                paypal: {
+                    flow: 'vault'
+                }
+            }, (createError, instance) => {
+                form.addEventListener('submit', e => {
+                    e.preventDefault()
+
+                    document.querySelector('form button.button').setAttribute('disabled', true)
+
+                    instance.requestPaymentMethod((error, payload) => {
+                        if (error) return console.error('Error', error)
+
+                        document.querySelector('#nonce').value = payload.nonce
+                        form.submit()
+                    })
+                })
+            })
