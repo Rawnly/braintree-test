@@ -31,7 +31,7 @@ const createResultObject = transaction => {
             icon: "success",
             message: "Your transaction has been successfully processed."
         }
-    } 
+    }
 
     return {
         header: "Transaction Failed!",
@@ -42,7 +42,7 @@ const createResultObject = transaction => {
 
 function formatErrors(errors) {
     var formattedErrors = '';
-  
+
     for (var i in errors) { // eslint-disable-line no-inner-declarations, vars-on-top
       if (errors.hasOwnProperty(i)) {
         formattedErrors += 'Error: ' + errors[i].code + ': ' + errors[i].message + '\n';
@@ -58,7 +58,7 @@ const gateway = braintree.connect({
     publicKey: process.env.PUBLIC_KEY,
     privateKey: process.env.PRIVATE_KEY
   });
-  
+
 // Express Configuration
 app.set('view engine', 'pug')
 app.set('views', path.join(root, 'views'))
@@ -95,7 +95,7 @@ app.get('/transactions/:id', (req, res) => {
 app.post('/checkout', (req, res) => {
     const { amount, payment_method_nonce } = req.body
     let errors;
-    
+
     gateway.transaction.sale({
         amount,
         paymentMethodNonce: payment_method_nonce,
@@ -103,7 +103,7 @@ app.post('/checkout', (req, res) => {
             submitForSettlement: true
         }
     }, (err, result) => {
-        if ( result.success || result.transaction ) 
+        if ( result.success || result.transaction )
         {
             res.redirect(`/transactions/${result.transaction.id}`)
         } else {
@@ -111,11 +111,11 @@ app.post('/checkout', (req, res) => {
 
             console.log( formatErrors(errors) )
             req.flash('error', { msg: formatErrors(errors) })
-            
+
             res.redirect('/')
         }
     })
 })
 
 
-app.listen(3000, () => console.log("Listening on port 3000"))
+app.listen(process.env.PORT, () => console.log("Listening on port " + process.env.PORT))
